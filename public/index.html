@@ -1,0 +1,2875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RUMBLE PIT</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-pit: #1a0a0a;
+      --neon-red: #ff2244;
+      --neon-blue: #00d4ff;
+      --neon-green: #00ff88;
+      --neon-yellow: #ffdd00;
+      --neon-purple: #aa44ff;
+      --neon-orange: #ff8844;
+      --text-primary: #ffffff;
+      --text-secondary: #888899;
+      --border-glow: rgba(255, 34, 68, 0.3);
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(255, 34, 68, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg-dark) 0%, #0d0d15 100%);
+      z-index: -1;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+    header { text-align: center; padding: 40px 20px; }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      background: linear-gradient(135deg, var(--neon-red) 0%, #ff6644 50%, var(--neon-yellow) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.2); }
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-top: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    /* Heckle Box */
+    .heckle-box {
+      background: linear-gradient(135deg, rgba(170, 68, 255, 0.1) 0%, rgba(255, 136, 68, 0.1) 100%);
+      border: 1px solid rgba(170, 68, 255, 0.3);
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .heckle-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      color: var(--neon-purple);
+      margin-bottom: 10px;
+      letter-spacing: 0.1em;
+    }
+
+    .heckle-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .heckle-message {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      animation: heckleIn 0.3s ease;
+    }
+
+    @keyframes heckleIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .heckle-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: top;
+      border: 2px solid var(--neon-purple);
+    }
+
+    .heckle-content {
+      flex: 1;
+    }
+
+    .heckle-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--neon-orange);
+    }
+
+    .heckle-text {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+    }
+
+    .heckle-empty {
+      color: var(--text-secondary);
+      font-style: italic;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .heckle-input-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(170, 68, 255, 0.2);
+    }
+
+    .heckle-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(170, 68, 255, 0.3);
+      border-radius: 8px;
+      padding: 10px 15px;
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+    }
+
+    .heckle-input:focus {
+      outline: none;
+      border-color: var(--neon-purple);
+    }
+
+    .btn-heckle {
+      background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-orange) 100%);
+      color: white;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+    }
+
+    .player-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      padding: 20px 30px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .player-info { display: flex; align-items: center; gap: 20px; }
+
+    .player-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: var(--neon-blue);
+    }
+
+    .player-name input {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid var(--neon-blue);
+      color: var(--neon-blue);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      width: 200px;
+      outline: none;
+    }
+
+    .player-wins { font-size: 1.3rem; color: var(--neon-green); }
+    .player-wins span { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.8rem; }
+
+    .status-badge {
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.9rem;
+    }
+
+    .status-badge.spectating {
+      background: rgba(136, 136, 153, 0.2);
+      border: 1px solid var(--text-secondary);
+      color: var(--text-secondary);
+    }
+
+    .status-badge.in-pit {
+      background: rgba(255, 34, 68, 0.2);
+      border: 1px solid var(--neon-red);
+      color: var(--neon-red);
+      animation: statusPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(255, 34, 68, 0.3); }
+      50% { box-shadow: 0 0 20px rgba(255, 34, 68, 0.6); }
+    }
+
+    .game-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; }
+    @media (max-width: 900px) { .game-grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 20px 25px;
+      border-bottom: 1px solid var(--border-glow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .panel-count {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .panel-body { padding: 20px; max-height: 500px; overflow-y: auto; }
+
+    .leaderboard-panel .panel-title { color: var(--neon-blue); }
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .leaderboard-item:hover { background: rgba(0, 212, 255, 0.1); }
+    .leaderboard-item.is-you { border: 1px solid var(--neon-blue); background: rgba(0, 212, 255, 0.1); }
+    .leaderboard-item.in-pit { border-left: 3px solid var(--neon-red); }
+    .leaderboard-item.offline { opacity: 0.5; }
+
+    .rank {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      width: 40px;
+      color: var(--text-secondary);
+    }
+    .rank.top-3 { color: var(--neon-yellow); }
+
+    .leaderboard-name { flex: 1; font-weight: 600; font-size: 1.1rem; }
+    .leaderboard-wins { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--neon-green); }
+
+    .pit-indicator {
+      width: 10px; height: 10px;
+      background: var(--neon-red);
+      border-radius: 50%;
+      margin-left: 15px;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    .online-indicator { width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; margin-left: 10px; }
+    .offline-indicator { width: 8px; height: 8px; background: var(--text-secondary); border-radius: 50%; margin-left: 10px; }
+
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .pit-panel {
+      background: linear-gradient(135deg, var(--bg-pit) 0%, var(--bg-card) 100%);
+      border-color: rgba(255, 34, 68, 0.4);
+    }
+    .pit-panel .panel-title { color: var(--neon-red); }
+
+    .pit-actions {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-glow);
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.2s ease;
+    }
+
+    .btn-join {
+      background: linear-gradient(135deg, var(--neon-red) 0%, #cc1133 100%);
+      color: white;
+      flex: 1;
+      min-width: 200px;
+    }
+    .btn-join:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 34, 68, 0.4); }
+
+    .btn-leave {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      border: 1px solid var(--text-secondary);
+    }
+    .btn-leave:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .btn-defend {
+      background: linear-gradient(135deg, var(--neon-blue) 0%, #0099cc 100%);
+      color: white;
+      flex: 1;
+    }
+    .btn-defend:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4); }
+    .btn-defend.active { animation: defendPulse 0.5s ease-in-out infinite; }
+
+    @keyframes defendPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.6); }
+      50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.9); }
+    }
+
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+    .pit-players { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding: 10px; }
+
+    .pit-player {
+      border: 2px solid rgba(255, 34, 68, 0.3);
+      border-radius: 12px;
+      padding: 20px 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      background-size: cover;
+      background-position: top center;
+    }
+
+    .pit-player::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1;
+      border-radius: 10px;
+    }
+
+    .pit-player > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .pit-player:hover:not(.is-you) {
+      border-color: var(--neon-red);
+      transform: scale(1.05);
+    }
+
+    .pit-player:hover:not(.is-you)::before {
+      background: rgba(255, 34, 68, 0.6);
+    }
+
+    .pit-player.is-you { border-color: var(--neon-blue); cursor: default; }
+    .pit-player.is-you::before { background: rgba(0, 100, 150, 0.7); }
+    .pit-player.defending { border-color: var(--neon-blue); }
+    .pit-player.defending::before { background: rgba(0, 150, 200, 0.7); }
+    .pit-player.attacking { border-color: var(--neon-yellow); }
+    .pit-player.attacking::before { background: rgba(150, 120, 0, 0.7); }
+    .pit-player.revenge { border-color: var(--neon-orange); box-shadow: 0 0 15px rgba(255, 136, 68, 0.5); }
+    .pit-player.revenge::before { background: rgba(150, 50, 0, 0.7); }
+
+    .pit-player-name { font-weight: 700; font-size: 1rem; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+    .pit-player-wins { font-size: 0.9rem; color: var(--neon-green); text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+    .pit-player-streak { font-size: 0.85rem; color: var(--neon-orange); margin-top: 3px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+
+    .pit-player-status {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .pit-player-status.idle { background: rgba(136, 136, 153, 0.3); color: var(--text-secondary); }
+    .pit-player-status.defending { background: rgba(0, 212, 255, 0.3); color: var(--neon-blue); }
+    .pit-player-status.attacking { background: rgba(255, 221, 0, 0.3); color: var(--neon-yellow); }
+
+    .attack-label {
+      position: absolute;
+      top: -10px; right: -10px;
+      background: var(--neon-red);
+      color: white;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      z-index: 3;
+    }
+
+    .revenge-label {
+      position: absolute;
+      top: -10px; left: -10px;
+      background: var(--neon-orange);
+      color: white;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      z-index: 3;
+    }
+
+    .streak-badge {
+      color: var(--neon-orange);
+      font-weight: 700;
+    }
+
+    /* Attack Modal */
+    .attack-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .attack-modal.show { display: flex; }
+
+    .attack-modal-content {
+      background: var(--bg-card);
+      border: 2px solid var(--neon-red);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .attack-modal-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: var(--neon-red);
+    }
+
+    .attack-modal-target {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-bottom: 25px;
+    }
+
+    .attack-buttons {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .btn-distance {
+      flex: 1;
+      background: linear-gradient(135deg, var(--neon-purple) 0%, #7722cc 100%);
+      color: white;
+      padding: 20px;
+    }
+    .btn-distance:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(170, 68, 255, 0.4); }
+
+    .btn-melee {
+      flex: 1;
+      background: linear-gradient(135deg, var(--neon-orange) 0%, #cc5500 100%);
+      color: white;
+      padding: 20px;
+    }
+    .btn-melee:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 136, 68, 0.4); }
+
+    .btn-cancel {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--text-secondary);
+      width: 100%;
+    }
+
+    .attack-hint {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 5px;
+    }
+
+    /* Character Modal */
+    .character-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .character-modal.show { display: flex; }
+
+    .character-modal-content {
+      background: var(--bg-card);
+      border: 2px solid var(--neon-blue);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      max-width: 350px;
+      width: 90%;
+      animation: modalIn 0.3s ease;
+    }
+
+    .character-modal-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      color: var(--neon-blue);
+    }
+
+    .character-image {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      object-position: top;
+      border-radius: 12px;
+      border: 3px solid var(--neon-purple);
+      margin-bottom: 20px;
+    }
+
+    .character-stats {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 15px;
+    }
+
+    .character-stats .wins {
+      color: var(--neon-green);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+    }
+
+    .clickable-name {
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .clickable-name:hover {
+      color: var(--neon-purple);
+      text-decoration: underline;
+    }
+
+    .battle-log { margin-top: 30px; }
+    .battle-log .panel-title { color: var(--neon-yellow); }
+
+    .log-entry {
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      border-left: 3px solid var(--neon-yellow);
+      font-size: 0.95rem;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .log-entry .winner { color: var(--neon-green); font-weight: 700; }
+    .log-entry .loser { color: var(--neon-red); font-weight: 700; }
+    .log-entry .reason { color: var(--text-secondary); font-style: italic; }
+    .log-entry .attack-type { color: var(--neon-purple); font-weight: 600; }
+    .log-entry .numbers { color: var(--neon-blue); font-family: 'Orbitron', sans-serif; font-size: 0.85rem; }
+
+    .alltime-panel { margin-top: 30px; }
+    .alltime-panel .panel-title { color: var(--neon-purple); }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
+
+    .toast-container {
+      position: fixed;
+      top: 20px; right: 20px;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 8px;
+      padding: 15px 25px;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 3.7s forwards;
+      max-width: 350px;
+    }
+    .toast.victory { border-color: var(--neon-green); background: rgba(0, 80, 50, 0.95); }
+    .toast.defeat { border-color: var(--neon-red); background: rgba(100, 20, 30, 0.95); }
+
+    @keyframes toastIn { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100px); } }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 34, 68, 0.3); border-radius: 4px; }
+
+    /* Character Selection Modal */
+    .char-select-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1002;
+      justify-content: center;
+      align-items: center;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .char-select-modal.show { display: flex; }
+
+    .char-select-content {
+      background: var(--bg-card);
+      border: 2px solid var(--neon-purple);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalIn 0.3s ease;
+    }
+
+    .char-select-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      color: var(--neon-purple);
+    }
+
+    .char-select-subtitle {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 10px;
+      margin-bottom: 25px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .char-option {
+      width: 80px;
+      height: 80px;
+      border: 3px solid rgba(170, 68, 255, 0.3);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      object-fit: cover;
+      object-position: top;
+    }
+
+    .char-option:hover {
+      border-color: var(--neon-purple);
+      transform: scale(1.1);
+    }
+
+    .char-option.selected {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    }
+
+    .char-select-preview {
+      margin-bottom: 20px;
+    }
+
+    .char-select-preview img {
+      width: 150px;
+      height: 150px;
+      border: 3px solid var(--neon-green);
+      border-radius: 12px;
+      object-fit: cover;
+      object-position: top;
+    }
+
+    .btn-confirm-char {
+      background: linear-gradient(135deg, var(--neon-green) 0%, #00aa55 100%);
+      color: white;
+      padding: 15px 40px;
+      font-size: 1.1rem;
+    }
+
+    /* Clan Badge */
+    .clan-badge {
+      font-size: 0.75rem;
+      color: var(--neon-orange);
+      font-style: italic;
+    }
+
+    .clan-badge::before {
+      content: '[';
+    }
+
+    .clan-badge::after {
+      content: ']';
+    }
+
+    /* Clan Section */
+    .clan-section {
+      background: rgba(170, 68, 255, 0.1);
+      border: 1px solid rgba(170, 68, 255, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .clan-section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: var(--neon-purple);
+      margin-bottom: 10px;
+    }
+
+    .clan-input {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(170, 68, 255, 0.3);
+      border-radius: 8px;
+      padding: 10px 15px;
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      width: 200px;
+      margin-right: 10px;
+    }
+
+    .clan-input:focus {
+      outline: none;
+      border-color: var(--neon-purple);
+    }
+
+    .btn-clan {
+      background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-orange) 100%);
+      color: white;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+    }
+
+    .current-clan {
+      color: var(--neon-orange);
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    /* Daily Challenges */
+    .challenges-section {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 255, 136, 0.1) 100%);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .challenges-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: var(--neon-blue);
+      margin-bottom: 10px;
+    }
+
+    .challenge-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .challenge-item:last-child {
+      border-bottom: none;
+    }
+
+    .challenge-progress {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .challenge-progress.complete {
+      color: var(--neon-green);
+    }
+
+    .btn-claim {
+      background: linear-gradient(135deg, var(--neon-green) 0%, #00aa55 100%);
+      color: white;
+      padding: 5px 15px;
+      font-size: 0.8rem;
+    }
+
+    .btn-claim:disabled {
+      background: var(--text-secondary);
+      opacity: 0.5;
+    }
+
+    /* Clan Modal */
+    .clan-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1001;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .clan-modal.show { display: flex; }
+
+    .clan-modal-content {
+      background: var(--bg-card);
+      border: 2px solid var(--neon-orange);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: modalIn 0.3s ease;
+    }
+
+    .clan-modal-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--neon-orange);
+    }
+
+    .clan-members-list {
+      text-align: left;
+      margin: 20px 0;
+    }
+
+    .clan-member {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .clan-member-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: top;
+      border: 2px solid var(--neon-orange);
+    }
+
+    .clan-member-info {
+      flex: 1;
+    }
+
+    .clan-member-name {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .clan-member-points {
+      font-size: 0.85rem;
+      color: var(--neon-green);
+    }
+
+    .btn-join-clan {
+      background: linear-gradient(135deg, var(--neon-orange) 0%, #cc5500 100%);
+      color: white;
+      padding: 15px 30px;
+      margin-top: 15px;
+    }
+
+    .btn-leave-clan {
+      background: transparent;
+      color: var(--neon-red);
+      border: 1px solid var(--neon-red);
+      padding: 10px 20px;
+      margin-top: 10px;
+    }
+
+    .clickable-clan {
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .clickable-clan:hover {
+      color: var(--neon-orange);
+      text-decoration: underline;
+    }
+
+    /* Clan Battle UI */
+    .clan-battle-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1002;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .clan-battle-modal.show { display: flex; }
+
+    .clan-battle-content {
+      background: var(--bg-card);
+      border: 2px solid var(--neon-red);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .clan-battle-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: var(--neon-red);
+      margin-bottom: 20px;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .clan-battle-vs {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin: 20px 0;
+    }
+
+    .clan-battle-team {
+      flex: 1;
+      text-align: center;
+    }
+
+    .clan-battle-team-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      color: var(--neon-orange);
+      margin-bottom: 10px;
+    }
+
+    .clan-battle-team-count {
+      color: var(--text-secondary);
+    }
+
+    .vs-icon {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: var(--neon-red);
+    }
+
+    .battle-round-results {
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .battle-round-header {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--neon-blue);
+      margin: 15px 0 10px;
+    }
+
+    .battle-matchup {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .battle-fighter {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .battle-fighter.winner {
+      color: var(--neon-green);
+    }
+
+    .battle-fighter.loser {
+      color: var(--neon-red);
+      opacity: 0.7;
+    }
+
+    .battle-fighter.captured {
+      text-decoration: line-through;
+      color: var(--neon-purple);
+    }
+
+    .battle-fighter-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: top;
+    }
+
+    .battle-fighter-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+    }
+
+    .capture-alert {
+      background: linear-gradient(135deg, rgba(170, 68, 255, 0.2) 0%, rgba(255, 34, 68, 0.2) 100%);
+      border: 1px solid var(--neon-purple);
+      border-radius: 8px;
+      padding: 10px;
+      margin: 10px 0;
+      color: var(--neon-purple);
+    }
+
+    .btn-challenge {
+      background: linear-gradient(135deg, var(--neon-red) 0%, #aa0022 100%);
+      color: white;
+    }
+
+    .btn-accept-battle {
+      background: linear-gradient(135deg, var(--neon-green) 0%, #00aa55 100%);
+    }
+
+    .btn-decline-battle {
+      background: transparent;
+      border: 1px solid var(--neon-red);
+      color: var(--neon-red);
+    }
+
+    .battle-notification {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, rgba(255, 34, 68, 0.9) 0%, rgba(170, 0, 34, 0.9) 100%);
+      border: 2px solid var(--neon-red);
+      border-radius: 12px;
+      padding: 20px 30px;
+      z-index: 1003;
+      text-align: center;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .battle-notification-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    /* Character Collection */
+    .collection-section {
+      background: linear-gradient(135deg, rgba(170, 68, 255, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+      border: 1px solid rgba(170, 68, 255, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .collection-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: var(--neon-purple);
+      margin-bottom: 10px;
+    }
+
+    .collection-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .collection-char {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+      object-position: top;
+      border: 2px solid var(--neon-purple);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .collection-char:hover {
+      transform: scale(1.1);
+    }
+
+    .collection-char.captured {
+      border-color: var(--neon-green);
+    }
+
+    /* Recruit Button */
+    .btn-recruit {
+      background: linear-gradient(135deg, var(--neon-purple) 0%, #6622aa 100%);
+      color: white;
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      margin-left: 8px;
+      border-radius: 4px;
+    }
+
+    .btn-recruit:hover {
+      transform: scale(1.05);
+    }
+
+    .recruitable {
+      border-left: 3px solid var(--neon-purple);
+    }
+
+    /* Clan Wars Button */
+    .clan-wars-btn {
+      background: linear-gradient(135deg, #ff2244 0%, #aa0022 50%, #ff4466 100%);
+      color: white;
+      padding: 15px 30px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border: 2px solid var(--neon-red);
+      border-radius: 12px;
+      cursor: pointer;
+      animation: pulse 2s ease-in-out infinite;
+      width: 100%;
+      margin: 15px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .clan-wars-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(255, 34, 68, 0.5);
+    }
+
+    .clan-wars-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      animation: none;
+    }
+
+    /* Character Switcher */
+    .char-switcher {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(170, 68, 255, 0.1) 100%);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .char-switcher-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: var(--neon-blue);
+      margin-bottom: 10px;
+    }
+
+    .char-switcher-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .switchable-char {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      object-position: top;
+      border: 2px solid var(--border-glow);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .switchable-char:hover {
+      transform: scale(1.1);
+      border-color: var(--neon-blue);
+    }
+
+    .switchable-char.active {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+    }
+
+    .switchable-char-info {
+      font-size: 0.7rem;
+      text-align: center;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .char-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Battle Animation */
+    .battle-arena {
+      background: linear-gradient(180deg, #0a0a15 0%, #1a0a0a 100%);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      min-height: 300px;
+    }
+
+    .matchup-display {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin: 20px 0;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fighter-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-glow);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      width: 150px;
+      transition: all 0.3s;
+    }
+
+    .fighter-card.team-a {
+      border-color: var(--neon-blue);
+    }
+
+    .fighter-card.team-b {
+      border-color: var(--neon-orange);
+    }
+
+    .fighter-card.winner {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+      transform: scale(1.05);
+    }
+
+    .fighter-card.loser {
+      border-color: var(--neon-red);
+      opacity: 0.6;
+      transform: scale(0.95);
+    }
+
+    .fighter-card img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: top;
+      margin-bottom: 10px;
+    }
+
+    .fighter-name {
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .fighter-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: var(--neon-yellow);
+    }
+
+    .fighter-number.hidden {
+      color: var(--text-secondary);
+    }
+
+    .vs-badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: var(--neon-red);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .attack-type-badge {
+      background: rgba(0,0,0,0.5);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 1.2rem;
+      margin: 10px 0;
+    }
+
+    .coin-flip {
+      font-size: 3rem;
+      animation: flip 1s ease-in-out;
+    }
+
+    @keyframes flip {
+      0% { transform: rotateY(0deg); }
+      50% { transform: rotateY(1800deg); }
+      100% { transform: rotateY(3600deg); }
+    }
+
+    .round-score {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      margin: 20px 0;
+    }
+
+    .score-team {
+      text-align: center;
+    }
+
+    .score-team.team-a { color: var(--neon-blue); }
+    .score-team.team-b { color: var(--neon-orange); }
+
+    .score-value {
+      font-size: 2.5rem;
+      font-weight: 900;
+    }
+
+    /* Clan selector dropdown */
+    .clan-selector {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .clan-selector option {
+      background: var(--bg-dark);
+    }
+
+    .edit-clan-icon {
+      font-size: 0.8rem;
+      opacity: 0.6;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    .edit-clan-icon:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>RUMBLE PIT</h1>
+      <p class="subtitle">Attack Fast or Die Trying</p>
+    </header>
+
+    <!-- Heckle Box -->
+    <div class="heckle-box" id="heckleBox">
+      <div class="heckle-title">💬 TRASH TALK</div>
+      <div class="heckle-messages" id="heckleMessages">
+        <div class="heckle-empty">Win a battle to talk trash...</div>
+      </div>
+    </div>
+
+    <div class="player-bar">
+      <div class="player-info">
+        <div class="player-name">
+          <input type="text" id="playerName" maxlength="20" placeholder="Your Name">
+        </div>
+        <div class="player-wins">Points: <span id="playerPoints">10</span></div>
+      </div>
+      <div class="status-badge spectating" id="statusBadge">Spectating</div>
+    </div>
+
+    <!-- Clan Section -->
+    <div class="clan-section" id="clanSection">
+      <div class="clan-section-title">⚔️ CLANS</div>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">10 points to create a clan</p>
+    </div>
+
+    <!-- Clan Wars Button -->
+    <button class="clan-wars-btn" id="clanWarsBtn" onclick="openClanWarsMenu()" style="display: none;">
+      ⚔️ CLAN WARS ⚔️
+    </button>
+
+    <!-- Character Switcher -->
+    <div class="char-switcher" id="charSwitcher" style="display: none;">
+      <div class="char-switcher-title">🎭 SWITCH CHARACTER</div>
+      <div class="char-switcher-grid" id="charSwitcherGrid"></div>
+    </div>
+
+    <!-- Daily Challenges Section -->
+    <div class="challenges-section" id="challengesSection">
+      <div class="challenges-title">⚡ DAILY CHALLENGES</div>
+      <div class="challenge-item">
+        <div>
+          <div>Win 3 revenge kills today</div>
+          <div class="challenge-progress">0/3</div>
+        </div>
+      </div>
+      <div class="challenge-item">
+        <div>
+          <div>Get a 5 win streak</div>
+          <div class="challenge-progress">0/5</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character Collection Section -->
+    <div class="collection-section" id="collectionSection">
+      <div class="collection-title">🎭 YOUR CHARACTERS</div>
+      <div class="collection-grid" id="collectionGrid">
+        <span style="color: var(--text-secondary); font-size: 0.9rem;">Loading...</span>
+      </div>
+    </div>
+
+    <div class="game-grid">
+      <div class="panel leaderboard-panel">
+        <div class="panel-header">
+          <span class="panel-title">🏆 Online Now</span>
+          <span class="panel-count" id="playerCount">0 online</span>
+        </div>
+        <div class="panel-body" id="leaderboard">
+          <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <p>No players online</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel pit-panel">
+        <div class="panel-header">
+          <span class="panel-title">⚔️ The Rumble Pit</span>
+          <span class="panel-count" id="pitCount">0 in pit</span>
+        </div>
+        <div class="pit-actions" id="pitActions">
+          <button class="btn btn-join" onclick="joinPit()">Enter the Pit</button>
+        </div>
+        <div class="panel-body">
+          <div class="pit-players" id="pitPlayers">
+            <div class="empty-state">
+              <div class="empty-state-icon">🔥</div>
+              <p>The pit is empty. Be the first to enter!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel battle-log">
+      <div class="panel-header">
+        <span class="panel-title">📜 Battle Log</span>
+      </div>
+      <div class="panel-body" id="battleLog">
+        <div class="empty-state">
+          <p>No battles yet. The tension builds...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel alltime-panel">
+      <div class="panel-header">
+        <span class="panel-title">👑 All-Time Leaderboard</span>
+        <span class="panel-count" id="allTimeCount">0 players</span>
+      </div>
+      <div class="panel-body" id="allTimeLeaderboard">
+        <div class="empty-state">
+          <div class="empty-state-icon">🏅</div>
+          <p>No records yet</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attack Modal -->
+  <div class="attack-modal" id="attackModal">
+    <div class="attack-modal-content">
+      <div class="attack-modal-title">⚔️ ATTACK</div>
+      <div class="attack-modal-target">Target: <span id="targetName"></span></div>
+      <div class="attack-buttons">
+        <button class="btn btn-distance" onclick="confirmAttack('distance')">
+          🏹 Distance
+        </button>
+        <button class="btn btn-melee" onclick="confirmAttack('melee')">
+          🗡️ Melee
+        </button>
+      </div>
+      <button class="btn btn-cancel" onclick="closeAttackModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Character Modal -->
+  <div class="character-modal" id="characterModal">
+    <div class="character-modal-content">
+      <div class="character-modal-title" id="characterModalName">Player Name</div>
+      <img class="character-image" id="characterImage" src="" alt="Character">
+      <div class="character-stats">Points: <span class="wins" id="characterPoints">0</span></div>
+      <button class="btn btn-cancel" onclick="closeCharacterModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Character Select Modal (for new players) -->
+  <div class="char-select-modal" id="charSelectModal">
+    <div class="char-select-content">
+      <div class="char-select-title">⚔️ CHOOSE YOUR FIGHTER</div>
+      <div class="char-select-subtitle">Select a character to represent you in the pit</div>
+      <div class="char-select-preview">
+        <img id="charPreview" src="/Character_Images/1.png" alt="Preview">
+      </div>
+      <div class="char-grid" id="charGrid"></div>
+      <button class="btn btn-confirm-char" onclick="confirmCharacterSelection()">🎮 Enter the Arena</button>
+    </div>
+  </div>
+
+  <!-- Clan Modal -->
+  <div class="clan-modal" id="clanModal">
+    <div class="clan-modal-content">
+      <div class="clan-modal-title" id="clanModalTitle">Clan Name</div>
+      <div class="clan-members-list" id="clanMembersList"></div>
+      <div id="clanModalActions"></div>
+      <button class="btn btn-cancel" onclick="closeClanModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Clan Battle Modal -->
+  <div class="clan-battle-modal" id="clanBattleModal">
+    <div class="clan-battle-content">
+      <div class="clan-battle-title" id="battleTitle">⚔️ CLAN WAR ⚔️</div>
+      
+      <div class="round-score">
+        <div class="score-team team-a">
+          <div id="teamAName">Clan A</div>
+          <div class="score-value" id="teamAScore">0</div>
+          <div style="font-size: 0.7rem; color: var(--text-secondary);">ROUNDS</div>
+        </div>
+        <div style="color: var(--text-secondary);">ROUND <span id="currentRound">1</span> of 3</div>
+        <div class="score-team team-b">
+          <div id="teamBName">Clan B</div>
+          <div class="score-value" id="teamBScore">0</div>
+          <div style="font-size: 0.7rem; color: var(--text-secondary);">ROUNDS</div>
+        </div>
+      </div>
+
+      <div class="battle-arena" id="battleArena">
+        <div style="text-align: center; color: var(--text-secondary);">
+          Waiting to start...
+        </div>
+      </div>
+
+      <div class="battle-round-results" id="battleRoundResults"></div>
+      <div id="battleActions"></div>
+      <button class="btn btn-cancel" onclick="closeBattleModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Clan Wars Menu Modal -->
+  <div class="clan-modal" id="clanWarsMenu" style="display: none;">
+    <div class="clan-modal-content">
+      <div class="clan-modal-title">⚔️ START A CLAN WAR</div>
+      <p style="color: var(--text-secondary); margin-bottom: 15px;">Select a clan to challenge:</p>
+      <select class="clan-selector" id="clanSelector">
+        <option value="">-- Select Enemy Clan --</option>
+      </select>
+      <div id="selectedClanInfo" style="margin: 15px 0;"></div>
+      <button class="btn btn-challenge" id="startWarBtn" onclick="startClanWar()" disabled>⚔️ DECLARE WAR</button>
+      <button class="btn btn-cancel" onclick="closeClanWarsMenu()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Battle Notification -->
+  <div class="battle-notification" id="battleNotification" style="display: none;">
+    <div class="battle-notification-title" id="notificationTitle">⚔️ CLAN BATTLE CHALLENGE!</div>
+    <div id="notificationText"></div>
+    <div style="margin-top: 15px;">
+      <button class="btn btn-accept-battle" id="acceptBattleBtn" onclick="acceptBattle()">Accept</button>
+      <button class="btn btn-decline-battle" onclick="declineBattle()">Decline</button>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let myId = null;
+    let myOdIdentifier = null;
+    let myName = '';
+    let myCharacterImage = 1;
+    let myClanName = null;
+    let myPoints = 10;
+    let myDailyRevengeKills = 0;
+    let myDailyMaxStreak = 0;
+    let myChallengeRevengeClaimed = false;
+    let myChallengeStreakClaimed = false;
+    let inPit = false;
+    let currentAction = null;
+    let audioEnabled = false;
+    let selectedTarget = null;
+    let canHeckle = false;
+    let selectedCharImage = 1;
+    let pendingNewPlayer = null;
+    let playersData = {}; // Store player data including character images
+
+    // Audio
+    function playDefeatSound() {
+      if (!audioEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      } catch(e) {}
+    }
+
+    function playVictorySound() {
+      if (!audioEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(523, ctx.currentTime);
+        osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      } catch(e) {}
+    }
+
+    // Revenge kill - epic rising sound
+    function playRevengeSound() {
+      if (!audioEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // Epic chord
+        [523, 659, 784, 1047].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 0.5);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+          osc.start(ctx.currentTime + i * 0.05);
+          osc.stop(ctx.currentTime + 0.6);
+        });
+      } catch(e) {}
+    }
+
+    // Streak kill (5+) - crowd roar
+    function playStreakSound() {
+      if (!audioEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // Create noise for crowd effect
+        const bufferSize = ctx.sampleRate * 0.5;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.sin(i / bufferSize * Math.PI);
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 800;
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start();
+        // Add triumphant tone
+        const osc = ctx.createOscillator();
+        const oscGain = ctx.createGain();
+        osc.connect(oscGain);
+        oscGain.connect(ctx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        oscGain.gain.setValueAtTime(0.2, ctx.currentTime);
+        oscGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      } catch(e) {}
+    }
+
+    // Gang attack - chaos sound
+    function playGangAttackSound() {
+      if (!audioEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // Multiple chaotic tones
+        [200, 350, 500, 700].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          osc.frequency.setValueAtTime(freq * 0.8, ctx.currentTime + 0.1);
+          osc.frequency.setValueAtTime(freq * 1.2, ctx.currentTime + 0.2);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime + i * 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.start(ctx.currentTime + i * 0.02);
+          osc.stop(ctx.currentTime + 0.35);
+        });
+      } catch(e) {}
+    }
+
+    document.addEventListener('click', function enableAudio() {
+      audioEnabled = true;
+      document.removeEventListener('click', enableAudio);
+    });
+
+    // localStorage
+    function getStoredPlayer() {
+      try {
+        const stored = localStorage.getItem('rumblePitPlayer');
+        return stored ? JSON.parse(stored) : null;
+      } catch(e) { return null; }
+    }
+
+    function storePlayer(playerId, name) {
+      try {
+        localStorage.setItem('rumblePitPlayer', JSON.stringify({ playerId, name }));
+      } catch(e) {}
+    }
+
+    // DOM
+    const playerNameInput = document.getElementById('playerName');
+    const playerPointsEl = document.getElementById('playerPoints');
+    const statusBadge = document.getElementById('statusBadge');
+    const playerCount = document.getElementById('playerCount');
+    const pitCount = document.getElementById('pitCount');
+    const leaderboardEl = document.getElementById('leaderboard');
+    const pitPlayersEl = document.getElementById('pitPlayers');
+    const pitActionsEl = document.getElementById('pitActions');
+    const heckleMessages = document.getElementById('heckleMessages');
+    const heckleBox = document.getElementById('heckleBox');
+    const battleLogEl = document.getElementById('battleLog');
+    const allTimeLeaderboardEl = document.getElementById('allTimeLeaderboard');
+    const allTimeCount = document.getElementById('allTimeCount');
+    const toastContainer = document.getElementById('toastContainer');
+    const attackModal = document.getElementById('attackModal');
+    const targetNameEl = document.getElementById('targetName');
+    const characterModal = document.getElementById('characterModal');
+    const characterModalName = document.getElementById('characterModalName');
+    const characterImage = document.getElementById('characterImage');
+    const characterPoints = document.getElementById('characterPoints');
+    const charSelectModal = document.getElementById('charSelectModal');
+    const charGrid = document.getElementById('charGrid');
+    const charPreview = document.getElementById('charPreview');
+    const clanModal = document.getElementById('clanModal');
+    const clanModalTitle = document.getElementById('clanModalTitle');
+    const clanMembersList = document.getElementById('clanMembersList');
+    const clanModalActions = document.getElementById('clanModalActions');
+
+    // Initialize character grid
+    function initCharGrid() {
+      let html = '';
+      for (let i = 1; i <= 52; i++) {
+        html += `<img class="char-option ${i === 1 ? 'selected' : ''}" src="/Character_Images/${i}.png" data-char="${i}" onclick="selectChar(${i})">`;
+      }
+      charGrid.innerHTML = html;
+    }
+    initCharGrid();
+
+    function selectChar(num) {
+      selectedCharImage = num;
+      charPreview.src = `/Character_Images/${num}.png`;
+      document.querySelectorAll('.char-option').forEach(el => el.classList.remove('selected'));
+      document.querySelector(`.char-option[data-char="${num}"]`).classList.add('selected');
+    }
+
+    function confirmCharacterSelection() {
+      if (!pendingNewPlayer) return;
+      socket.emit('confirmCharacter', {
+        odIdentifier: pendingNewPlayer.odIdentifier,
+        name: pendingNewPlayer.name,
+        characterImage: selectedCharImage
+      });
+      charSelectModal.classList.remove('show');
+      pendingNewPlayer = null;
+    }
+
+    // Socket
+    const socket = io();
+
+    socket.on('connect', () => {
+      const stored = getStoredPlayer();
+      socket.emit('identify', {
+        playerId: stored ? stored.playerId : null,
+        name: stored ? stored.name : null
+      });
+    });
+
+    socket.on('selectCharacter', (data) => {
+      pendingNewPlayer = data;
+      charSelectModal.classList.add('show');
+    });
+
+    socket.on('welcome', (data) => {
+      myId = data.you.id;
+      myOdIdentifier = data.you.odIdentifier;
+      myName = data.you.name;
+      myCharacterImage = data.you.characterImage || 1;
+      myClanName = data.you.clanName || null;
+      myPoints = data.you.points || 10;
+      myDailyRevengeKills = data.you.dailyRevengeKills || 0;
+      myDailyMaxStreak = data.you.dailyMaxStreak || 0;
+      myChallengeRevengeClaimed = data.you.challengeRevengeClaimed || false;
+      myChallengeStreakClaimed = data.you.challengeStreakClaimed || false;
+      canHeckle = data.you.canHeckle || false;
+      storePlayer(myOdIdentifier, myName);
+      playerNameInput.value = myName;
+      playerPointsEl.textContent = myPoints;
+      updateGameState(data);
+      updatePitActions();
+      updateClanSection();
+      updateChallengesSection();
+      setTimeout(updateCollection, 500);
+    });
+
+    socket.on('clanCreated', (data) => {
+      myClanName = data.clanName;
+      showToast('CLAN CREATED!', `Welcome to ${data.clanName}!`, 'victory');
+      updateClanSection();
+    });
+
+    socket.on('clanNameChanged', (data) => {
+      myClanName = data.clanName;
+      showToast('CLAN RENAMED', `Your clan is now ${data.clanName}`, 'victory');
+      updateClanSection();
+    });
+
+    socket.on('clanMembers', (data) => {
+      showClanModal(data.clanName, data.members);
+    });
+
+    socket.on('clanJoined', (data) => {
+      myClanName = data.clanName;
+      showToast('JOINED CLAN!', `You are now a member of ${data.clanName}!`, 'victory');
+      closeClanModal();
+      updateClanSection();
+    });
+
+    socket.on('clanLeft', () => {
+      myClanName = null;
+      showToast('LEFT CLAN', 'You have left your clan', 'defeat');
+      updateClanSection();
+    });
+
+    socket.on('playerRecruited', (data) => {
+      showToast('RECRUITED!', `${data.name} has joined ${data.clanName}!`, 'victory');
+      updateCollection();
+    });
+
+    socket.on('youWereRecruited', (data) => {
+      myClanName = data.clanName;
+      showToast('YOU WERE RECRUITED!', `${data.recruiterName} recruited you to ${data.clanName}!`, 'victory');
+      updateClanSection();
+    });
+
+    function recruitPlayer(targetOdIdentifier) {
+      socket.emit('recruitPlayer', targetOdIdentifier);
+    }
+
+    socket.on('challengeClaimed', (data) => {
+      myPoints = data.newPoints;
+      playerPointsEl.textContent = myPoints;
+      if (data.type === 'revenge') {
+        myChallengeRevengeClaimed = true;
+      } else {
+        myChallengeStreakClaimed = true;
+      }
+      showToast('CHALLENGE COMPLETE!', `+${data.bonus} bonus points!`, 'victory');
+      updateChallengesSection();
+    });
+
+    socket.on('gameState', updateGameState);
+
+    socket.on('pitJoined', () => {
+      inPit = true;
+      currentAction = null;
+      updateStatus();
+      updatePitActions();
+    });
+
+    socket.on('pitLeft', () => {
+      inPit = false;
+      currentAction = null;
+      updateStatus();
+      updatePitActions();
+    });
+
+    socket.on('actionSet', (data) => {
+      currentAction = data.action;
+      updatePitActions();
+    });
+
+    socket.on('battleResults', (results) => {
+      results.forEach(result => {
+        addBattleLog(result);
+        
+        if (result.winner.id === myId) {
+          const revengeBonus = result.isRevenge ? ' (+2 REVENGE BONUS!)' : '';
+          const captureBonus = result.captured ? ' 💀 CAPTURED!' : '';
+          showToast('VICTORY!', `You defeated ${result.loser.name} (${result.reason})${revengeBonus}${captureBonus}`, 'victory');
+          
+          // Play appropriate sound
+          if (result.isRevenge) {
+            playRevengeSound();
+            myDailyRevengeKills++;
+          } else if (result.isStreakKill) {
+            playStreakSound();
+          } else if (result.isGangAttack) {
+            playGangAttackSound();
+          } else {
+            playVictorySound();
+          }
+          
+          const pointsGained = result.isRevenge ? 3 : 1;
+          myPoints += pointsGained;
+          playerPointsEl.textContent = myPoints;
+          currentAction = null;
+          canHeckle = true;
+          updatePitActions();
+          updateClanSection();
+          updateChallengesSection();
+          
+          // Refresh character collection if capture occurred
+          if (result.captured) {
+            updateCharacterSwitcher();
+            updateCollection();
+          }
+        } else if (result.loser.id === myId) {
+          const capturedMsg = result.captured ? ` 💀 You've been CAPTURED by ${result.capturedBy}!` : '';
+          showToast('DEFEATED!', `${result.winner.name} took you down (${result.reason}) -1 point${capturedMsg}`, 'defeat');
+          playDefeatSound();
+          myPoints = Math.max(0, myPoints - 1);
+          playerPointsEl.textContent = myPoints;
+          inPit = false;
+          currentAction = null;
+          updateStatus();
+          updatePitActions();
+          
+          // Update clan if captured
+          if (result.captured) {
+            // Will be updated on next state broadcast
+          }
+        }
+      });
+    });
+
+    socket.on('nameChanged', (data) => {
+      myName = data.name;
+      storePlayer(myOdIdentifier, myName);
+    });
+
+    socket.on('error', (data) => {
+      showToast('Error', data.message, 'defeat');
+    });
+
+    socket.on('heckleUsed', () => {
+      canHeckle = false;
+      updatePitActions();
+    });
+
+    function updateGameState(data) {
+      const leaderboard = data.leaderboard || [];
+      playerCount.textContent = `${leaderboard.length} online`;
+      
+      // Store player data for character modal
+      leaderboard.forEach(p => {
+        playersData[p.id] = { name: p.name, points: p.points, characterImage: p.characterImage || 1, streak: p.streak || 0, clanName: p.clanName };
+      });
+      
+      if (leaderboard.length === 0) {
+        leaderboardEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><p>No players online</p></div>';
+      } else {
+        leaderboardEl.innerHTML = leaderboard.map((player, i) => {
+          const streakDisplay = player.streak >= 2 ? ` <span class="streak-badge">🔥${player.streak}</span>` : '';
+          const clanDisplay = player.clanName ? `<span class="clan-badge clickable-clan" onclick="event.stopPropagation(); openClanModal('${escapeHtml(player.clanName)}')">[${escapeHtml(player.clanName)}]</span> ` : '';
+          return `
+          <div class="leaderboard-item ${player.id === myId ? 'is-you' : ''} ${player.inPit ? 'in-pit' : ''}">
+            <span class="rank ${i < 3 ? 'top-3' : ''}">#${i + 1}</span>
+            <span class="leaderboard-name clickable-name" onclick="showCharacter('${player.id}')">${clanDisplay}${escapeHtml(player.name)}${streakDisplay}${player.id === myId ? ' (you)' : ''}</span>
+            <span class="leaderboard-wins">${player.points}</span>
+            ${player.inPit ? '<span class="pit-indicator"></span>' : ''}
+          </div>
+        `}).join('');
+      }
+
+      const allTime = data.allTimeLeaderboard || [];
+      allTimeCount.textContent = `${allTime.length} players`;
+      
+      // Store all-time player data
+      allTime.forEach(p => {
+        playersData['alltime_' + p.odIdentifier] = { name: p.name, points: p.points, characterImage: p.characterImage || 1, clanName: p.clanName };
+      });
+      
+      if (allTime.length === 0) {
+        allTimeLeaderboardEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏅</div><p>No records yet</p></div>';
+      } else {
+        allTimeLeaderboardEl.innerHTML = allTime.map((player, i) => {
+          const clanDisplay = player.clanName ? `<span class="clan-badge clickable-clan" onclick="event.stopPropagation(); openClanModal('${escapeHtml(player.clanName)}')">[${escapeHtml(player.clanName)}]</span> ` : '';
+          
+          // Show recruit button if: I have a clan, player has 0 points, player has no clan, not me
+          const canRecruit = myClanName && player.points === 0 && !player.clanName && player.odIdentifier !== myOdIdentifier;
+          const recruitBtn = canRecruit ? `<button class="btn btn-recruit" onclick="event.stopPropagation(); recruitPlayer('${player.odIdentifier}')">Recruit</button>` : '';
+          const recruitableClass = canRecruit ? 'recruitable' : '';
+          
+          return `
+          <div class="leaderboard-item ${player.odIdentifier === myOdIdentifier ? 'is-you' : ''} ${!player.online ? 'offline' : ''} ${recruitableClass}">
+            <span class="rank ${i < 3 ? 'top-3' : ''}">#${i + 1}</span>
+            <span class="leaderboard-name clickable-name" onclick="showCharacter('alltime_${player.odIdentifier}')">${clanDisplay}${escapeHtml(player.name)}${player.odIdentifier === myOdIdentifier ? ' (you)' : ''}${recruitBtn}</span>
+            <span class="leaderboard-wins">${player.points}</span>
+            <span class="${player.online ? 'online-indicator' : 'offline-indicator'}"></span>
+          </div>
+        `}).join('');
+      }
+
+      const pit = data.pit || [];
+      pitCount.textContent = `${pit.length} in pit`;
+      
+      // Store pit player data
+      pit.forEach(p => {
+        playersData[p.id] = { ...playersData[p.id], name: p.name, points: p.points, characterImage: p.characterImage || 1, streak: p.streak || 0 };
+      });
+      
+      if (pit.length === 0) {
+        pitPlayersEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔥</div><p>The pit is empty. Be the first to enter!</p></div>';
+      } else {
+        pitPlayersEl.innerHTML = pit.map(player => {
+          const streakDisplay = player.streak >= 2 ? `<div class="pit-player-streak">🔥 ${player.streak} streak</div>` : '';
+          const revengeClass = player.isRevenge ? ' revenge' : '';
+          const revengeLabel = player.isRevenge ? '<span class="revenge-label">🎯 REVENGE</span>' : '';
+          return `
+          <div class="pit-player ${player.id === myId ? 'is-you' : ''} ${player.action}${revengeClass}" 
+               style="background-image: url('/Character_Images/${player.characterImage}.png');"
+               onclick="${player.id !== myId && inPit ? `openAttackModal('${player.id}', '${escapeHtml(player.name)}')` : ''}">
+            ${player.id !== myId && inPit ? '<span class="attack-label">Attack!</span>' : ''}
+            ${revengeLabel}
+            <div class="pit-player-name">${escapeHtml(player.name)}${player.id === myId ? ' (you)' : ''}</div>
+            <div class="pit-player-wins">${player.points} pts</div>
+            ${streakDisplay}
+            <div class="pit-player-status ${player.action}">${player.action}</div>
+          </div>
+        `}).join('');
+      }
+
+      const me = leaderboard.find(p => p.id === myId);
+      if (me) {
+        playerPointsEl.textContent = me.points;
+        myPoints = me.points;
+        if (me.inPit !== inPit) {
+          inPit = me.inPit;
+          updateStatus();
+          updatePitActions();
+        }
+      }
+
+      // Update heckles
+      updateHeckles(data.heckles || []);
+    }
+
+    function updateHeckles(heckleList) {
+      if (heckleList.length === 0) {
+        heckleMessages.innerHTML = '<div class="heckle-empty">Win a battle to talk trash...</div>';
+      } else {
+        heckleMessages.innerHTML = heckleList.map(h => `
+          <div class="heckle-message">
+            <img class="heckle-avatar" src="/Character_Images/${h.characterImage}.png" alt="">
+            <div class="heckle-content">
+              <span class="heckle-name">${escapeHtml(h.name)}:</span>
+              <span class="heckle-text">${escapeHtml(h.message)}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function updateStatus() {
+      statusBadge.textContent = inPit ? 'In the Pit' : 'Spectating';
+      statusBadge.className = 'status-badge ' + (inPit ? 'in-pit' : 'spectating');
+    }
+
+    function updatePitActions() {
+      const heckleInput = canHeckle ? `
+        <div class="heckle-input-container">
+          <input type="text" class="heckle-input" id="heckleInput" placeholder="Talk trash..." maxlength="100">
+          <button class="btn btn-heckle" onclick="sendHeckle()">💬 Send</button>
+        </div>
+      ` : '';
+
+      if (!inPit) {
+        pitActionsEl.innerHTML = `
+          <button class="btn btn-join" onclick="joinPit()">Enter the Pit</button>
+          ${heckleInput}
+        `;
+      } else {
+        pitActionsEl.innerHTML = `
+          <button class="btn btn-defend ${currentAction === 'defend' ? 'active' : ''}" onclick="defend()" ${currentAction ? 'disabled' : ''}>
+            ${currentAction === 'defend' ? '🛡️ Defending...' : '🛡️ Defend'}
+          </button>
+          <button class="btn btn-leave" onclick="leavePit()">Leave Pit</button>
+          ${heckleInput}
+        `;
+      }
+    }
+
+    function joinPit() { socket.emit('joinPit'); }
+    function leavePit() { socket.emit('leavePit'); }
+    function defend() { if (!currentAction) socket.emit('defend'); }
+
+    function sendHeckle() {
+      const input = document.getElementById('heckleInput');
+      if (!input || !canHeckle) return;
+      const message = input.value.trim();
+      if (message) {
+        socket.emit('heckle', message);
+        input.value = '';
+      }
+    }
+
+    // Allow Enter key to send heckle
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.id === 'heckleInput') {
+        sendHeckle();
+      }
+      if (e.key === 'Enter' && e.target.id === 'clanNameInput') {
+        createClan();
+      }
+      if (e.key === 'Enter' && e.target.id === 'renameClanInput') {
+        renameClan();
+      }
+    });
+
+    function updateClanSection() {
+      const clanContainer = document.getElementById('clanSection');
+      const warsBtn = document.getElementById('clanWarsBtn');
+      const charSwitcher = document.getElementById('charSwitcher');
+      if (!clanContainer) return;
+
+      if (myClanName) {
+        // Already in a clan - compact display with edit option
+        clanContainer.innerHTML = `
+          <div class="clan-section-title">⚔️ YOUR CLAN</div>
+          <div class="current-clan clickable-clan" onclick="openClanModal('${escapeHtml(myClanName)}')">${escapeHtml(myClanName)} <span class="edit-clan-icon" onclick="event.stopPropagation(); toggleRenameInput()">✏️</span></div>
+          <div id="renameSection" style="display: none;">
+            <input type="text" class="clan-input" id="renameClanInput" placeholder="New clan name..." maxlength="30">
+            <button class="btn btn-clan" onclick="renameClan()">Rename</button>
+          </div>
+        `;
+        // Show clan wars button
+        warsBtn.style.display = 'block';
+        // Show character switcher
+        charSwitcher.style.display = 'block';
+        updateCharacterSwitcher();
+      } else if (myPoints >= 10) {
+        // Can create a clan
+        clanContainer.innerHTML = `
+          <div class="clan-section-title">⚔️ CREATE A CLAN</div>
+          <p style="color: var(--text-secondary); margin-bottom: 10px; font-size: 0.9rem;">You've earned the right to lead!</p>
+          <input type="text" class="clan-input" id="clanNameInput" placeholder="Clan name (or random)" maxlength="30">
+          <button class="btn btn-clan" onclick="createClan()">🏴 Create Clan</button>
+        `;
+        warsBtn.style.display = 'none';
+        charSwitcher.style.display = 'none';
+      } else {
+        // Not enough points
+        const pointsNeeded = 10 - myPoints;
+        clanContainer.innerHTML = `
+          <div class="clan-section-title">⚔️ CLANS</div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">${pointsNeeded} more point${pointsNeeded !== 1 ? 's' : ''} to create a clan</p>
+        `;
+        warsBtn.style.display = 'none';
+        charSwitcher.style.display = 'none';
+      }
+    }
+
+    function toggleRenameInput() {
+      const section = document.getElementById('renameSection');
+      if (section) {
+        section.style.display = section.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    // Character Switcher
+    let myClanCharacters = [];
+    
+    function updateCharacterSwitcher() {
+      socket.emit('getMyClanCharacters');
+    }
+
+    socket.on('myClanCharacters', (data) => {
+      myClanCharacters = data.characters || [];
+      const grid = document.getElementById('charSwitcherGrid');
+      if (!grid) return;
+      
+      if (myClanCharacters.length === 0) {
+        grid.innerHTML = '<span style="color: var(--text-secondary);">No characters in clan</span>';
+        return;
+      }
+      
+      grid.innerHTML = myClanCharacters.map(char => `
+        <div class="char-wrapper">
+          <img class="switchable-char ${char.od_identifier === myOdIdentifier ? 'active' : ''}" 
+               src="/Character_Images/${char.character_image}.png" 
+               alt="${escapeHtml(char.name)}"
+               onclick="switchToCharacter('${char.od_identifier}')"
+               title="${escapeHtml(char.name)} - ${char.points} pts">
+          <div class="switchable-char-info">${char.points}pts</div>
+        </div>
+      `).join('');
+    });
+
+    function switchToCharacter(charId) {
+      if (charId === myOdIdentifier) return; // Already this character
+      socket.emit('switchCharacter', charId);
+    }
+
+    socket.on('characterSwitched', (data) => {
+      myOdIdentifier = data.odIdentifier;
+      myName = data.name;
+      myPoints = data.points;
+      myCharacterImage = data.characterImage;
+      playerNameInput.value = myName;
+      playerPointsEl.textContent = myPoints;
+      showToast('CHARACTER SWITCHED!', `Now playing as ${data.name}`, 'victory');
+      updateCharacterSwitcher();
+      storePlayer(myOdIdentifier, myName);
+    });
+
+    function createClan() {
+      const input = document.getElementById('clanNameInput');
+      const clanName = input ? input.value.trim() : '';
+      socket.emit('createClan', clanName);
+    }
+
+    function renameClan() {
+      const input = document.getElementById('renameClanInput');
+      const newName = input ? input.value.trim() : '';
+      if (newName) {
+        socket.emit('changeClanName', newName);
+        input.value = '';
+      }
+    }
+
+    function openAttackModal(targetId, targetName) {
+      if (!inPit || currentAction) return;
+      selectedTarget = targetId;
+      targetNameEl.textContent = targetName;
+      attackModal.classList.add('show');
+    }
+
+    function closeAttackModal() {
+      attackModal.classList.remove('show');
+      selectedTarget = null;
+    }
+
+    function confirmAttack(attackType) {
+      if (selectedTarget && inPit) {
+        socket.emit('attack', { targetId: selectedTarget, attackType: attackType });
+        currentAction = 'attack';
+        closeAttackModal();
+      }
+    }
+
+    // Close modal on outside click
+    attackModal.addEventListener('click', (e) => {
+      if (e.target === attackModal) closeAttackModal();
+    });
+
+    function showCharacter(playerId) {
+      const player = playersData[playerId];
+      if (!player) return;
+      
+      characterModalName.textContent = player.name;
+      characterImage.src = `/Character_Images/${player.characterImage}.png`;
+      characterPoints.textContent = player.points;
+      characterModal.classList.add('show');
+    }
+
+    function closeCharacterModal() {
+      characterModal.classList.remove('show');
+    }
+
+    // Close character modal on outside click
+    characterModal.addEventListener('click', (e) => {
+      if (e.target === characterModal) closeCharacterModal();
+    });
+
+    // Clan Modal Functions
+    function openClanModal(clanName) {
+      socket.emit('getClanMembers', clanName);
+    }
+
+    function showClanModal(clanName, members) {
+      currentViewedClan = clanName;
+      clanModalTitle.textContent = clanName;
+      
+      if (members.length === 0) {
+        clanMembersList.innerHTML = '<div class="empty-state">No members found</div>';
+      } else {
+        clanMembersList.innerHTML = members.map(member => `
+          <div class="clan-member">
+            <img class="clan-member-avatar" src="/Character_Images/${member.characterImage}.png" alt="">
+            <div class="clan-member-info">
+              <div class="clan-member-name">${escapeHtml(member.name)}</div>
+              <div class="clan-member-points">${member.points} points</div>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      let actionsHtml = '';
+      
+      // Show join button only if player is not in this clan and not in any clan
+      if (!myClanName) {
+        actionsHtml = `<button class="btn btn-join-clan" onclick="joinClan('${escapeHtml(clanName)}')">🏴 Join ${escapeHtml(clanName)}</button>`;
+      } else if (myClanName === clanName) {
+        actionsHtml = `<button class="btn btn-leave-clan" onclick="leaveClan()">Leave Clan</button>`;
+      } else {
+        // Different clan - show challenge button if I'm a clan creator
+        actionsHtml = `
+          <div style="color: var(--text-secondary); margin-top: 10px;">Leave your current clan to join this one</div>
+          <button class="btn btn-challenge" onclick="challengeClan('${escapeHtml(clanName)}')" style="margin-top: 10px;">⚔️ Challenge to Clan War</button>
+        `;
+      }
+      
+      clanModalActions.innerHTML = actionsHtml;
+      clanModal.classList.add('show');
+    }
+
+    function closeClanModal() {
+      clanModal.classList.remove('show');
+    }
+
+    function joinClan(clanName) {
+      socket.emit('joinClan', clanName);
+    }
+
+    function leaveClan() {
+      socket.emit('leaveClan');
+      closeClanModal();
+    }
+
+    // Close clan modal on outside click
+    clanModal.addEventListener('click', (e) => {
+      if (e.target === clanModal) closeClanModal();
+    });
+
+    // Clan Battle Functions
+    let currentBattleId = null;
+    let currentViewedClan = null;
+    let battleState = { teamAScore: 0, teamBScore: 0, round: 1 };
+    const battleModal = document.getElementById('clanBattleModal');
+    const battleNotification = document.getElementById('battleNotification');
+    const clanWarsMenu = document.getElementById('clanWarsMenu');
+
+    function challengeClan(targetClan) {
+      socket.emit('challengeClan', targetClan);
+      closeClanModal();
+    }
+
+    // Clan Wars Menu
+    function openClanWarsMenu() {
+      socket.emit('getAvailableClans');
+    }
+
+    socket.on('availableClans', (data) => {
+      const selector = document.getElementById('clanSelector');
+      selector.innerHTML = '<option value="">-- Select Enemy Clan --</option>';
+      
+      data.clans.forEach(clan => {
+        if (clan.name !== myClanName) {
+          selector.innerHTML += `<option value="${escapeHtml(clan.name)}">${escapeHtml(clan.name)} (${clan.memberCount} fighters)</option>`;
+        }
+      });
+      
+      clanWarsMenu.style.display = 'flex';
+    });
+
+    document.getElementById('clanSelector').addEventListener('change', function() {
+      const selectedClan = this.value;
+      const startBtn = document.getElementById('startWarBtn');
+      const infoDiv = document.getElementById('selectedClanInfo');
+      
+      if (selectedClan) {
+        startBtn.disabled = false;
+        infoDiv.innerHTML = `<div style="color: var(--neon-orange);">Ready to challenge ${escapeHtml(selectedClan)}!</div>`;
+      } else {
+        startBtn.disabled = true;
+        infoDiv.innerHTML = '';
+      }
+    });
+
+    function startClanWar() {
+      const selectedClan = document.getElementById('clanSelector').value;
+      if (selectedClan) {
+        socket.emit('challengeClan', selectedClan);
+        closeClanWarsMenu();
+      }
+    }
+
+    function closeClanWarsMenu() {
+      clanWarsMenu.style.display = 'none';
+    }
+
+    function acceptBattle() {
+      if (currentBattleId) {
+        socket.emit('acceptClanBattle', currentBattleId);
+        battleNotification.style.display = 'none';
+      }
+    }
+
+    function declineBattle() {
+      if (currentBattleId) {
+        socket.emit('declineClanBattle', currentBattleId);
+        battleNotification.style.display = 'none';
+        currentBattleId = null;
+      }
+    }
+
+    function startBattle() {
+      if (currentBattleId) {
+        socket.emit('startClanBattle', currentBattleId);
+      }
+    }
+
+    function closeBattleModal() {
+      battleModal.classList.remove('show');
+    }
+
+    function showBattleModal(challengerClan, defenderClan, challengerCount, defenderCount) {
+      document.getElementById('teamAName').textContent = challengerClan;
+      document.getElementById('teamBName').textContent = defenderClan;
+      document.getElementById('teamAScore').textContent = '0';
+      document.getElementById('teamBScore').textContent = '0';
+      document.getElementById('currentRound').textContent = '1';
+      document.getElementById('battleRoundResults').innerHTML = '';
+      document.getElementById('battleArena').innerHTML = `
+        <div style="text-align: center;">
+          <div style="font-size: 1.2rem; color: var(--neon-blue); margin-bottom: 10px;">${escapeHtml(challengerClan)}</div>
+          <div style="color: var(--text-secondary);">${challengerCount} fighters</div>
+          <div class="vs-badge" style="margin: 20px 0;">VS</div>
+          <div style="font-size: 1.2rem; color: var(--neon-orange); margin-bottom: 10px;">${escapeHtml(defenderClan)}</div>
+          <div style="color: var(--text-secondary);">${defenderCount} fighters</div>
+        </div>
+      `;
+      document.getElementById('battleActions').innerHTML = `
+        <button class="btn btn-challenge" onclick="startBattle()" style="width: 100%; padding: 15px; font-size: 1.2rem;">⚔️ START THE WAR!</button>
+      `;
+      battleState = { teamAScore: 0, teamBScore: 0, round: 1, teamA: challengerClan, teamB: defenderClan };
+      battleModal.classList.add('show');
+    }
+
+    // Animated battle display
+    async function displayMatchup(matchup, index, total) {
+      const arena = document.getElementById('battleArena');
+      
+      // Show matchup with hidden numbers
+      arena.innerHTML = `
+        <div style="text-align: center; margin-bottom: 10px; color: var(--text-secondary);">
+          Match ${index + 1} of ${total}
+        </div>
+        <div class="matchup-display">
+          <div class="fighter-card team-a">
+            <img src="/Character_Images/${matchup.fighterA.characterImage}.png" alt="">
+            <div class="fighter-name">${escapeHtml(matchup.fighterA.name)}</div>
+            <div class="fighter-number hidden">???</div>
+          </div>
+          <div class="vs-badge">⚔️</div>
+          <div class="fighter-card team-b">
+            <img src="/Character_Images/${matchup.fighterB.characterImage}.png" alt="">
+            <div class="fighter-name">${escapeHtml(matchup.fighterB.name)}</div>
+            <div class="fighter-number hidden">???</div>
+          </div>
+        </div>
+        <div style="text-align: center;">
+          <div class="coin-flip">🪙</div>
+          <div style="color: var(--text-secondary); margin-top: 10px;">Flipping for attack type...</div>
+        </div>
+      `;
+      
+      await sleep(1500);
+      
+      // Show attack type
+      const attackIcon = matchup.attackType === 'distance' ? '🏹' : '🗡️';
+      const attackName = matchup.attackType === 'distance' ? 'DISTANCE' : 'MELEE';
+      arena.innerHTML = `
+        <div style="text-align: center; margin-bottom: 10px; color: var(--text-secondary);">
+          Match ${index + 1} of ${total}
+        </div>
+        <div class="matchup-display">
+          <div class="fighter-card team-a">
+            <img src="/Character_Images/${matchup.fighterA.characterImage}.png" alt="">
+            <div class="fighter-name">${escapeHtml(matchup.fighterA.name)}</div>
+            <div class="fighter-number hidden">???</div>
+          </div>
+          <div class="vs-badge">⚔️</div>
+          <div class="fighter-card team-b">
+            <img src="/Character_Images/${matchup.fighterB.characterImage}.png" alt="">
+            <div class="fighter-name">${escapeHtml(matchup.fighterB.name)}</div>
+            <div class="fighter-number hidden">???</div>
+          </div>
+        </div>
+        <div class="attack-type-badge" style="text-align: center;">
+          ${attackIcon} ${attackName} ATTACK ${attackIcon}
+        </div>
+      `;
+      
+      await sleep(1000);
+      
+      // Reveal numbers and winner
+      const winnerIsA = matchup.winner.id === matchup.fighterA.id;
+      arena.innerHTML = `
+        <div style="text-align: center; margin-bottom: 10px; color: var(--text-secondary);">
+          Match ${index + 1} of ${total}
+        </div>
+        <div class="matchup-display">
+          <div class="fighter-card team-a ${winnerIsA ? 'winner' : 'loser'}">
+            <img src="/Character_Images/${matchup.fighterA.characterImage}.png" alt="">
+            <div class="fighter-name">${escapeHtml(matchup.fighterA.name)}</div>
+            <div class="fighter-number">${matchup.fighterA.number}</div>
+            ${winnerIsA ? '<div style="color: var(--neon-green);">✓ WINNER</div>' : '<div style="color: var(--neon-red);">✗ DEFEATED</div>'}
+          </div>
+          <div class="vs-badge">${attackIcon}</div>
+          <div class="fighter-card team-b ${!winnerIsA ? 'winner' : 'loser'}">
+            <img src="/Character_Images/${matchup.fighterB.characterImage}.png" alt="">
+            <div class="fighter-name">${escapeHtml(matchup.fighterB.name)}</div>
+            <div class="fighter-number">${matchup.fighterB.number}</div>
+            ${!winnerIsA ? '<div style="color: var(--neon-green);">✓ WINNER</div>' : '<div style="color: var(--neon-red);">✗ DEFEATED</div>'}
+          </div>
+        </div>
+        <div class="attack-type-badge" style="text-align: center;">
+          ${attackIcon} ${attackName} - ${matchup.attackType === 'distance' ? 'Higher' : 'Lower'} number wins!
+        </div>
+        ${matchup.captured ? `<div class="capture-alert">💀 ${escapeHtml(matchup.loser.name)} CAPTURED!</div>` : ''}
+      `;
+      
+      // Play sound
+      if (winnerIsA && battleState.teamA === myClanName || !winnerIsA && battleState.teamB === myClanName) {
+        playVictorySound();
+      }
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Socket handlers for clan battles
+    socket.on('battleCreated', (data) => {
+      currentBattleId = data.battleId;
+      showToast('CHALLENGE SENT!', `Waiting for ${data.defenderClan} to accept...`, 'victory');
+    });
+
+    socket.on('clanBattleChallenge', (data) => {
+      // Show notification to defender clan
+      if (myClanName === data.defenderClan) {
+        currentBattleId = data.battleId;
+        document.getElementById('notificationText').textContent = 
+          `${data.challengerClan} has challenged ${data.defenderClan} to a Clan War!`;
+        battleNotification.style.display = 'block';
+      }
+    });
+
+    socket.on('clanBattleAccepted', (data) => {
+      currentBattleId = data.battleId;
+      battleNotification.style.display = 'none';
+      
+      if (myClanName === data.challengerClan || myClanName === data.defenderClan) {
+        showBattleModal(data.challengerClan, data.defenderClan, data.challengerCount || '?', data.defenderCount || '?');
+        showToast('BATTLE ACCEPTED!', 'The war begins! Click START THE WAR!', 'victory');
+      }
+    });
+
+    socket.on('clanBattleDeclined', (data) => {
+      if (currentBattleId === data.battleId) {
+        showToast('BATTLE DECLINED', 'The challenge was declined.', 'defeat');
+        currentBattleId = null;
+      }
+    });
+
+    socket.on('clanBattleRound', async (data) => {
+      if (!myClanName) return;
+      
+      // Show the battle modal if not already showing
+      if (!battleModal.classList.contains('show')) {
+        battleModal.classList.add('show');
+      }
+      
+      document.getElementById('currentRound').textContent = data.round;
+      document.getElementById('battleActions').innerHTML = '<div style="color: var(--text-secondary);">Battle in progress...</div>';
+      
+      // Animate each matchup
+      for (let i = 0; i < data.results.length; i++) {
+        await displayMatchup(data.results[i], i, data.results.length);
+        await sleep(2000);
+      }
+      
+      // Update overall scores from server
+      if (data.overallScore) {
+        const teamAName = document.getElementById('teamAName').textContent;
+        const teamBName = document.getElementById('teamBName').textContent;
+        document.getElementById('teamAScore').textContent = data.overallScore[teamAName] || 0;
+        document.getElementById('teamBScore').textContent = data.overallScore[teamBName] || 0;
+      }
+      
+      // Add round summary to results log
+      const resultsEl = document.getElementById('battleRoundResults');
+      let roundHtml = `<div class="battle-round-header">Round ${data.round} - ${data.roundWinner === 'TIE' ? 'TIE!' : data.roundWinner + ' wins!'}</div>`;
+      data.results.forEach(r => {
+        const icon = r.attackType === 'distance' ? '🏹' : '🗡️';
+        roundHtml += `<div style="font-size: 0.9rem; color: var(--text-secondary);">
+          ${icon} ${escapeHtml(r.winner.name)} beat ${escapeHtml(r.loser.name)} [${r.fighterA.number} vs ${r.fighterB.number}]
+        </div>`;
+      });
+      resultsEl.innerHTML = roundHtml + resultsEl.innerHTML;
+    });
+
+    // Update collection on battle complete
+    socket.on('clanBattleComplete', (data) => {
+      let captureHtml = '';
+      if (data.totalCaptures && data.totalCaptures.length > 0) {
+        captureHtml = `<div style="margin-top: 15px;">
+          <div style="color: var(--neon-purple); font-weight: bold;">💀 CAPTURED:</div>
+          ${data.totalCaptures.map(c => `<div style="color: var(--text-secondary);">${escapeHtml(c.capturedName)} → ${escapeHtml(c.newClan)}</div>`).join('')}
+        </div>`;
+      }
+      
+      document.getElementById('battleArena').innerHTML = `
+        <div style="text-align: center; font-size: 2rem; color: var(--neon-green); margin: 40px 0;">
+          🏆 ${escapeHtml(data.winnerClan)} WINS! 🏆
+        </div>
+        <div style="text-align: center; color: var(--text-secondary);">
+          Final Score: ${Object.entries(data.finalScore || {}).map(([clan, wins]) => `${escapeHtml(clan)}: ${wins}`).join(' - ')}
+        </div>
+        ${captureHtml}
+      `;
+      document.getElementById('battleActions').innerHTML = '';
+      
+      if (myClanName === data.winnerClan) {
+        showToast('VICTORY!', `${data.winnerClan} wins the clan war!`, 'victory');
+        playRevengeSound(); // Epic victory sound
+      } else if (myClanName) {
+        showToast('DEFEATED', `${data.winnerClan} has won the war!`, 'defeat');
+      }
+      
+      currentBattleId = null;
+      setTimeout(updateCollection, 1000); // Refresh collection after battle
+      setTimeout(updateCharacterSwitcher, 1000);
+    });
+
+    battleModal.addEventListener('click', (e) => {
+      if (e.target === battleModal) closeBattleModal();
+    });
+    
+    clanWarsMenu.addEventListener('click', (e) => {
+      if (e.target === clanWarsMenu) closeClanWarsMenu();
+    });
+
+    // Character Collection
+    function updateCollection() {
+      socket.emit('getOwnedCharacters');
+    }
+
+    socket.on('ownedCharacters', (data) => {
+      const grid = document.getElementById('collectionGrid');
+      if (!data.characters || data.characters.length === 0) {
+        grid.innerHTML = '<span style="color: var(--text-secondary); font-size: 0.9rem;">No characters yet</span>';
+        return;
+      }
+      
+      grid.innerHTML = data.characters.map(char => {
+        const isCaptured = char.owner_id && char.owner_id !== char.od_identifier;
+        return `
+          <img class="collection-char ${isCaptured ? 'captured' : ''}" 
+               src="/Character_Images/${char.character_image}.png" 
+               alt="${escapeHtml(char.name)}"
+               title="${escapeHtml(char.name)} - ${char.points} pts ${isCaptured ? '(captured)' : ''}"
+               onclick="showCharacter('collection_${char.od_identifier}')">
+        `;
+      }).join('');
+      
+      // Store for character modal
+      data.characters.forEach(char => {
+        playersData['collection_' + char.od_identifier] = {
+          name: char.name,
+          points: char.points,
+          characterImage: char.character_image,
+          clanName: char.clan_name
+        };
+      });
+    });
+
+    // Daily Challenges
+    function updateChallengesSection() {
+      const challengesEl = document.getElementById('challengesSection');
+      if (!challengesEl) return;
+      
+      const revengeProgress = myDailyRevengeKills || 0;
+      const streakProgress = myDailyMaxStreak || 0;
+      const revengeComplete = revengeProgress >= 3;
+      const streakComplete = streakProgress >= 5;
+      
+      let html = '<div class="challenges-title">⚡ DAILY CHALLENGES</div>';
+      
+      // Revenge challenge
+      html += `<div class="challenge-item">
+        <div>
+          <div>Win 3 revenge kills today</div>
+          <div class="challenge-progress ${revengeComplete ? 'complete' : ''}">${revengeProgress}/3 ${revengeComplete ? '✓' : ''}</div>
+        </div>
+        ${revengeComplete && !myChallengeRevengeClaimed ? 
+          '<button class="btn btn-claim" onclick="claimChallenge(\'revenge\')">Claim +5</button>' : 
+          (myChallengeRevengeClaimed ? '<span style="color: var(--neon-green);">Claimed!</span>' : '')}
+      </div>`;
+      
+      // Streak challenge
+      html += `<div class="challenge-item">
+        <div>
+          <div>Get a 5 win streak</div>
+          <div class="challenge-progress ${streakComplete ? 'complete' : ''}">${streakProgress}/5 ${streakComplete ? '✓' : ''}</div>
+        </div>
+        ${streakComplete && !myChallengeStreakClaimed ? 
+          '<button class="btn btn-claim" onclick="claimChallenge(\'streak\')">Claim +3</button>' : 
+          (myChallengeStreakClaimed ? '<span style="color: var(--neon-green);">Claimed!</span>' : '')}
+      </div>`;
+      
+      challengesEl.innerHTML = html;
+    }
+
+    function claimChallenge(type) {
+      socket.emit('claimChallenge', type);
+    }
+
+    function addBattleLog(result) {
+      const empty = battleLogEl.querySelector('.empty-state');
+      if (empty) battleLogEl.innerHTML = '';
+
+      const attackTypeIcon = result.attackType === 'distance' ? '🏹' : '🗡️';
+      const attackTypeName = result.attackType === 'distance' ? 'Distance' : 'Melee';
+      const revengeTag = result.isRevenge ? ' <span style="color: var(--neon-orange);">🎯 REVENGE!</span>' : '';
+      const captureTag = result.captured ? ' <span style="color: var(--neon-purple);">💀 CAPTURED!</span>' : '';
+      
+      let numberInfo = '';
+      if (result.attackerNumber !== undefined && result.defenderNumber !== undefined) {
+        numberInfo = ` <span class="numbers">[${result.attackerNumber} vs ${result.defenderNumber}]</span>`;
+      }
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `
+        <span class="attack-type">${attackTypeIcon} ${attackTypeName}</span> - 
+        <span class="winner">${escapeHtml(result.winner.name)}</span> defeated 
+        <span class="loser">${escapeHtml(result.loser.name)}</span> 
+        <span class="reason">(${result.reason})</span>${revengeTag}${captureTag}${numberInfo}
+      `;
+      battleLogEl.insertBefore(entry, battleLogEl.firstChild);
+      
+      while (battleLogEl.children.length > 50) battleLogEl.removeChild(battleLogEl.lastChild);
+    }
+
+    function showToast(title, message, type) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<strong>${title}</strong><br>${message}`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    let nameTimeout;
+    playerNameInput.addEventListener('input', () => {
+      clearTimeout(nameTimeout);
+      nameTimeout = setTimeout(() => {
+        const newName = playerNameInput.value.trim();
+        if (newName && newName !== myName) {
+          socket.emit('changeName', newName);
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>
